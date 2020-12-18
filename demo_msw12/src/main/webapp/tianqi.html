@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="./js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="./js/vue.js"></script>
+</head>
+<style>
+    body{
+        color: white;
+    }
+    span{
+        font-size: 1px;
+
+        margin-right: 10px;
+    }
+</style>
+<body>
+
+    <div id="app">
+
+        <div style="height: 350px; width: 1100px;  margin: 0 auto;margin-top: 100px;">
+            <!--搜索框-->
+            <div class="input-group input-group-lg" >
+                <input type="text" class="form-control" v-model="cityName" placeholder="Search for...">
+                <span class="input-group-btn">
+                 <button class="btn btn-default" type="button" v-on:click="queryTianqi()">搜索</button>
+                </span>
+            </div><!-- /input-group -->
+            <!--数据展示-->
+            <div  style="height: 350px; width: 1100px; background: deepskyblue;">
+                <!--左边数据展示-->
+                <div style="height: 350px; width: 400px; float: left">
+                    <div style="margin-left: 100px; margin-top: 20px">
+                        <span style="  width: 140px; font-size: 50px;">{{cityName}}</span> <span>[切换城市]</span><br>
+                        <span>{{day1.date}}</span><span>{{day1.week}}</span><span>庚子年十月十六</span>
+                    </div>
+                    <div style="margin-top: 20px">
+                        <span><img v-bind:src="day1.wea_day_img" style="width: 80px; height: 80px"></span>
+                        <span style="  width: 140px; font-size: 80px;">{{day1.tem}}°C</span><span>{{day1.wea}}</span><span>{{day1.tem2}}->{{day1.tem1}}°C</span>
+                        <br>
+                        <span style="margin-left: 30px">湿度：60%</span><span>风向：{{day1.win[0]}}{{day1.win_speed}}</span><span>紫外线：{{day1.index[0].level}}</span><br>
+                    </div>
+                    <div style="margin-left: 30px; margin-top: 20px">
+                        <span >空气质量：{{day1.air_level}}</span><span>PM:82</span>
+                    </div>
+                </div>
+                <!--右边数据展示-->
+                <div style="height: 350px; width: 600px; float: right">
+                    <h3>{{cityName}}天气预报一周</h3>
+                    <div style="height: 280px; width: 600px;">
+                        <div >
+                            <span v-for="item in data">{{item.date}}</span>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <span v-for="item in data" style="margin-right: 45px">{{item.week}}</span>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <span v-for="item in data" style="margin-right: 34px"><img v-bind:src="item.wea_day_img" style="height: 40px; width: 50px"></span>
+                        </div>
+                        <div style="margin-bottom: 20px">
+                            <span v-for="item in data" style="margin-right: 55px">{{item.wea}}</span>
+                        </div>
+                        <div style="margin-bottom: 20px">
+                            <span v-for="item in data" style="margin-right: 77px">{{item.tem1}}</span>
+                        </div>
+                        <div style="margin-bottom: 20px">
+                            <span v-for="item in data" style="margin-right: 76px">{{item.tem2}}</span></div>
+                        <div style="margin-bottom: 20px">
+                            <span v-for="item in data" style="margin-right: 45px">{{item.win[0]}}</span></div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+<script type="text/javascript">
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            update_time: '',
+            city:'',
+            day1:[],
+            data:[],
+            cityName:'武汉'
+        },
+        methods:{
+            queryTianqi:function () {
+                $.ajax({
+                    url:"/queryTianqi",
+                    type:"GET",
+                    data:{cityName : vue.cityName},
+                    success:function(result){
+                        // console.log(result);
+                        vue.day1 = result.data[0];
+                        vue.day1.wea_day_img = "icon/"+ result.data[0].wea_day_img+".png";
+                        result.data[1].wea_day_img = "icon/"+ result.data[1].wea_day_img+".png";
+                        result.data[2].wea_day_img = "icon/"+ result.data[2].wea_day_img+".png";
+                        result.data[3].wea_day_img = "icon/"+ result.data[3].wea_day_img+".png";
+                        result.data[4].wea_day_img = "icon/"+ result.data[4].wea_day_img+".png";
+                        result.data[5].wea_day_img = "icon/"+ result.data[5].wea_day_img+".png";
+                        result.data[6].wea_day_img = "icon/"+ result.data[6].wea_day_img+".png";
+                        vue.data = result.data;
+                        vue.cityName = result.city;
+                    }
+                });
+            }
+        },
+        create:function () {
+            this.queryTianqi();
+        },
+        mounted:function () {
+            $.ajax({
+                url:"/queryTianqi",
+                type:"GET",
+                data:{cityName : '武汉'},
+                success:function(result){
+                    console.log(result);
+                    vue.day1 = result.data[0];
+                    vue.day1.wea_day_img = "icon/"+ result.data[0].wea_day_img+".png";
+                    result.data[1].wea_day_img = "icon/"+ result.data[1].wea_day_img+".png";
+                    result.data[2].wea_day_img = "icon/"+ result.data[2].wea_day_img+".png";
+                    result.data[3].wea_day_img = "icon/"+ result.data[3].wea_day_img+".png";
+                    result.data[4].wea_day_img = "icon/"+ result.data[4].wea_day_img+".png";
+                    result.data[5].wea_day_img = "icon/"+ result.data[5].wea_day_img+".png";
+                    result.data[6].wea_day_img = "icon/"+ result.data[6].wea_day_img+".png";
+                    vue.data = result.data;
+                    vue.cityName = result.city;
+
+                }
+            });
+        }
+    })
+
+</script>
+</html>
